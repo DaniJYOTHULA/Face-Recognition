@@ -1,0 +1,46 @@
+# Face Recognition using Python with face_recognition library
+# First, install the required libraries:
+# pip install face_recognition opencv-python
+
+import face_recognition
+import cv2
+import numpy as np
+
+# Step 1: Load a sample image with a known face (replace with your image path)
+known_image = face_recognition.load_image_file(r"c:\Users\daniv\Downloads\PASS PORT PHOTO (1).jpg")  # Path to image of person you want to recognize
+known_face_encoding = face_recognition.face_encodings(known_image)[0]
+
+# Step 2: Load an unknown image (replace with your image path)
+unknown_image = face_recognition.load_image_file(r"c:\Users\daniv\Downloads\PASS PORT PHOTO (1).jpg")  # Path to image to check
+
+# Step 3: Find face encodings in the unknown image
+face_locations = face_recognition.face_locations(unknown_image)
+face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
+
+# Step 4: Compare faces
+face_names = []
+for face_encoding in face_encodings:
+    # Compare with known face
+    matches = face_recognition.compare_faces([known_face_encoding], face_encoding)
+    name = "Dani" if matches[0] else "Unknown"
+    face_names.append(name)
+
+# Step 5: Display results (optional: visualize with OpenCV)
+pil_image = cv2.cvtColor(unknown_image, cv2.COLOR_RGB2BGR)
+for (top, right, bottom, left), name in zip(face_locations, face_names):
+    # Draw a box around the face
+    cv2.rectangle(pil_image, (left, top), (right, bottom), (0, 0, 255), 2)
+    
+    # Draw a label with the name
+    cv2.rectangle(pil_image, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+    font = cv2.FONT_HERSHEY_DUPLEX
+    cv2.putText(pil_image, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+
+# Show the image
+cv2.imshow('Face Recognition Result', pil_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# Print results to console
+for name in face_names:
+    print(f"Detected: {name}")
